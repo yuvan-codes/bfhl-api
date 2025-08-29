@@ -2,17 +2,19 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
+// Your personal details
 const USER_DETAILS = {
     user_id: "yuvanshankar01_18102004",
     email: "yuvanshankar.sa@gmail.com",
     roll_number: "22BAI1048"
 };
 
+// Helper function to process the data array
 function processData(data) {
     const result = {
         is_success: true,
@@ -30,6 +32,7 @@ function processData(data) {
 
     try {
         data.forEach(item => {
+            // Check if it's a number
             if (!isNaN(item) && !isNaN(parseFloat(item))) {
                 const num = parseInt(item);
                 numSum += num;
@@ -40,19 +43,24 @@ function processData(data) {
                     result.odd_numbers.push(item.toString());
                 }
             }
+            // Check if it's alphabetic
             else if (/^[a-zA-Z]+$/.test(item)) {
                 result.alphabets.push(item.toUpperCase());
+                // Store individual characters for concatenation
                 for (let char of item) {
                     alphabetChars.push(char);
                 }
             }
+            // Special characters
             else {
                 result.special_characters.push(item);
             }
         });
 
+        // Set sum as string
         result.sum = numSum.toString();
 
+        // Create concatenation string with alternating caps in reverse order
         if (alphabetChars.length > 0) {
             const reversedChars = alphabetChars.reverse();
             let concatString = "";
@@ -79,6 +87,7 @@ app.post('/bfhl', (req, res) => {
     try {
         const { data } = req.body;
 
+        // Validate input
         if (!data || !Array.isArray(data)) {
             return res.status(400).json({
                 is_success: false,
@@ -97,13 +106,14 @@ app.post('/bfhl', (req, res) => {
     }
 });
 
-// GET /bfhl route
+// GET /bfhl route (for testing)
 app.get('/bfhl', (req, res) => {
     res.status(200).json({
         operation_code: 1
     });
 });
 
+// Health check route
 app.get('/', (req, res) => {
     res.json({
         message: "BFHL API is running",
@@ -114,9 +124,5 @@ app.get('/', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`API endpoint: http://localhost:${PORT}/bfhl`);
-});
-
+// Export for Vercel
 module.exports = app;
